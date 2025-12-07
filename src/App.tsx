@@ -11,9 +11,6 @@ import { Dashboard } from './pages/Dashboard';
 import { DocumentsPage } from './pages/Documents';
 import { CreateDocumentPage } from './pages/CreateDocument';
 import { ViewDocumentPage } from './pages/ViewDocument';
-import { DraftsPage } from './pages/Drafts';
-import { TemplatesPage } from './pages/Templates';
-import { TemplateEditorPage } from './pages/TemplateEditor';
 import { SettingsPage } from './pages/Settings';
 import { HelpPage } from './pages/Help';
 import './index.css';
@@ -42,10 +39,6 @@ const App: React.FC = () => {
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/documents/create" element={<CreateDocumentPage />} />
           <Route path="/documents/:id" element={<ViewDocumentPage />} />
-          <Route path="/drafts" element={<DraftsPage />} />
-          <Route path="/templates" element={<TemplatesPage />} />
-          <Route path="/templates/create" element={<TemplateEditorPage />} />
-          <Route path="/templates/:id/edit" element={<TemplateEditorPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/help" element={<HelpPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

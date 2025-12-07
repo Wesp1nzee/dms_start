@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { FileText, Settings, HelpCircle, Home, Archive, Copy, Plus, LayoutGrid } from 'lucide-react';
+import { FileText, Settings, HelpCircle, Home, Copy, Plus } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
 export const AppShell: React.FC = () => {
@@ -17,8 +17,6 @@ export const AppShell: React.FC = () => {
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/documents', label: 'Документы', icon: FileText },
     { path: '/documents/create', label: 'Создать', icon: Plus },
-    { path: '/drafts', label: 'Черновики', icon: Archive },
-    { path: '/templates', label: 'Шаблоны', icon: LayoutGrid },
     { path: '/settings', label: 'Настройки', icon: Settings },
     { path: '/help', label: 'Справка', icon: HelpCircle },
   ];

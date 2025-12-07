@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockApi } from '../api/mockApi';
+import { RichTextEditor } from '../components/RichTextEditor.tsx';
 import type { Document } from '../types';
 import toast from 'react-hot-toast';
 import {
@@ -15,6 +16,9 @@ import {
   Plus,
   Zap,
   Tag,
+  Edit2,
+  Save,
+  X as XIcon,
 } from 'lucide-react';
 
 export const ViewDocumentPage: React.FC = () => {
@@ -28,6 +32,8 @@ export const ViewDocumentPage: React.FC = () => {
   const [newComment, setNewComment] = useState('');
   const [ocrText, setOcrText] = useState<string | null>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingContent, setEditingContent] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -42,6 +48,7 @@ export const ViewDocumentPage: React.FC = () => {
       if (result.success && result.data) {
         setDocument(result.data);
         setOcrText(result.data.ocrText || null);
+        setEditingContent(result.data.currentContent || '');
       } else {
         toast.error('Документ не найден');
         navigate('/documents');
@@ -102,6 +109,37 @@ export const ViewDocumentPage: React.FC = () => {
       toast.error('Ошибка OCR');
     } finally {
       setOcrLoading(false);
+    }
+  };
+
+  const handleEditStart = () => {
+    setIsEditing(true);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    if (document) {
+      setEditingContent(document.currentContent || '');
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (!document) return;
+
+    try {
+      const result = await mockApi.updateDocument(document.id, {
+        currentContent: editingContent,
+      });
+
+      if (result.success) {
+        await loadDocument();
+        setIsEditing(false);
+        toast.success('Документ обновлен');
+      } else {
+        toast.error('Ошибка обновления документа');
+      }
+    } catch (error) {
+      toast.error('Ошибка обновления документа');
     }
   };
 
@@ -198,15 +236,56 @@ export const ViewDocumentPage: React.FC = () => {
       {/* Content */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         {activeTab === 'preview' && (
-          <div className="prose prose-sm max-w-none">
-            {document.currentContent ? (
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: document.currentContent,
-                }}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              {!isEditing && (
+                <button
+                  onClick={handleEditStart}
+                  className="flex items-center space-x-2 px-3 py-1 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  <span>Редактировать</span>
+                </button>
+              )}
+              {isEditing && (
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleEditSave}
+                    className="flex items-center space-x-2 px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Сохранить</span>
+                  </button>
+                  <button
+                    onClick={handleEditCancel}
+                    className="flex items-center space-x-2 px-3 py-1 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700"
+                  >
+                    <XIcon className="w-4 h-4" />
+                    <span>Отмена</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {isEditing ? (
+              <RichTextEditor
+                value={editingContent}
+                onChange={setEditingContent}
+                editable={true}
+                placeholder="Содержимое документа..."
               />
             ) : (
-              <p className="text-gray-600">Содержимое документа отсутствует</p>
+              <div className="prose prose-sm max-w-none">
+                {document.currentContent ? (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: document.currentContent,
+                    }}
+                  />
+                ) : (
+                  <p className="text-gray-600">Содержимое документа отсутствует</p>
+                )}
+              </div>
             )}
           </div>
         )}

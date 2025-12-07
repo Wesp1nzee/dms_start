@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockApi } from '../api/mockApi';
+import { RichTextEditor } from '../components/RichTextEditor.tsx';
 import type { DocumentType } from '../types';
 import toast from 'react-hot-toast';
 import { Save, X } from 'lucide-react';
@@ -21,6 +22,7 @@ export const CreateDocumentPage: React.FC = () => {
     expertise_type: '',
     responsible: '',
     tags: '',
+    content: '', // Добавляем поле контента
   });
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +55,10 @@ export const CreateDocumentPage: React.FC = () => {
       });
 
       if (result.success && result.data) {
+        // Обновляем содержимое документа
+        if (formData.content) {
+          await mockApi.updateDocument(result.data.id, { currentContent: formData.content });
+        }
         toast.success('Документ создан');
         navigate(`/documents/${result.data.id}`);
       } else {
@@ -213,6 +219,20 @@ export const CreateDocumentPage: React.FC = () => {
             onChange={handleChange}
             placeholder="тег1, тег2, тег3"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Содержимое документа</label>
+          <RichTextEditor
+            value={formData.content}
+            onChange={(content: string) =>
+              setFormData((prev) => ({
+                ...prev,
+                content,
+              }))
+            }
+            placeholder="Начните писать содержимое документа..."
           />
         </div>
 
